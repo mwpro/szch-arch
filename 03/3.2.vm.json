@@ -13,6 +13,18 @@
       "metadata": {
         "description": "Password for the Virtual Machine."
       }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual Network to be used."
+      }
+    },
+    "newSubnetPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet address prefix to be created."
+      }
     }
   },
   "variables": {
@@ -21,9 +33,7 @@
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "nicName": "[concat('nic-', resourceGroup().location, '-', variables('vmid'))]",
-    "addressPrefix": "10.0.0.0/16",
     "subnetName": "[concat('snet-', resourceGroup().location, '-', variables('vmid'))]",
-    "subnetPrefix": "10.0.0.0/24",
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "[concat('pip-', resourceGroup().location, '-', variables('vmid'))]",
     "publicIPAddressType": "Dynamic",
@@ -31,8 +41,7 @@
     "vmName": "[concat('vm-', resourceGroup().location, '-', variables('vmid'))]",
     "vmSize": "Standard_A1",
     "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
-    "virtualNetworkName": "[concat('vnet-', resourceGroup().location, '-', variables('vmid'))]",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]"
   },
   "resources": [
     {
@@ -56,24 +65,12 @@
       }
     },
     {
-      "apiVersion": "2017-04-01",
-      "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
+      "apiVersion": "2018-04-01",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('vnetName'), '/', variables('subnetName'))]",
       "location": "[variables('location')]",
       "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('addressPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('subnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('subnetPrefix')]"
-            }
-          }
-        ]
+        "addressPrefix": "[parameters('newSubnetPrefix')]"
       }
     },
     {
@@ -82,8 +79,7 @@
       "name": "[variables('nicName')]",
       "location": "[variables('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -133,7 +129,7 @@
           },
           "dataDisks": [
             {
-              "diskSizeGB": 1023,
+              "diskSizeGB": 64,
               "lun": 0,
               "createOption": "Empty",
               "name": "[concat(variables('diskNamePrefix'), '-data')]"
