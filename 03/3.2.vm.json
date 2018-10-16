@@ -31,7 +31,7 @@
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "[concat('pip-', resourceGroup().location, '-', variables('vmid'))]",
     "publicIPAddressType": "Dynamic",
-    "vmId": "[uniquestring(resourceGroup().id)]",
+    "vmId": "[uniquestring(resourceGroup().id, deployment().name)]",
     "vmName": "[concat('vm-', resourceGroup().location, '-', variables('vmid'))]",
     "vmSize": "Standard_A1",
     "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
