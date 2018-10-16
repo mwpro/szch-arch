@@ -1,0 +1,69 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {
+        "location": "[resourceGroup().location]",
+        "addressPrefix": "10.0.0.0/16",
+        "subnetName": "[concat('snet-', resourceGroup().location, '-', variables('vmid'))]",
+        "subnetPrefix": "10.0.0.0/24",
+        "storageAccountType": "Standard_LRS",
+        "publicIPAddressName": "[concat('pip-', resourceGroup().location, '-', variables('vmid'))]",
+        "publicIPAddressType": "Dynamic",
+        "vmId": "[uniquestring(resourceGroup().id)]",
+        "vmName": "[concat('vm-', resourceGroup().location, '-', variables('vmid'))]",
+        "vmSize": "Standard_A1",
+        "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
+        "virtualNetworkName": "[concat('vnet-', resourceGroup().location, '-', variables('vmid'))]",
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('virtualNetworkName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('addressPrefix')]"
+                    ]
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[concat('deployVmWithSubnet', copyindex())]",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+            ],
+            "resourceGroup": "[resourceGroup().name]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/mwpro/szch-arch/master/03/3.2.vm.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminPassword": {
+                        "value": "qwert**A45DC"
+                    },
+                    "vnetName": {
+                        "value": "[variables('virtualNetworkName')]"
+                    },
+                    "newSubnetPrefix": {
+                        "value": "[concat('10.0.', copyIndex(), '.0/24')]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "vmCopy",
+                "count": 2,
+                "mode": "serial",
+                "batchSize": 2
+            }
+        }
+    ],
+    "outputs": {}
+}
