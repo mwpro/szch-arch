@@ -5,17 +5,8 @@
     "variables": {
         "location": "[resourceGroup().location]",
         "addressPrefix": "10.0.0.0/16",
-        "subnetName": "[concat('snet-', resourceGroup().location, '-', variables('vmid'))]",
-        "subnetPrefix": "10.0.0.0/24",
-        "storageAccountType": "Standard_LRS",
-        "publicIPAddressName": "[concat('pip-', resourceGroup().location, '-', variables('vmid'))]",
-        "publicIPAddressType": "Dynamic",
         "vmId": "[uniquestring(resourceGroup().id)]",
-        "vmName": "[concat('vm-', resourceGroup().location, '-', variables('vmid'))]",
-        "vmSize": "Standard_A1",
-        "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
-        "virtualNetworkName": "[concat('vnet-', resourceGroup().location, '-', variables('vmid'))]",
-        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+        "virtualNetworkName": "[concat('vnet-', resourceGroup().location, '-', variables('vmid'))]"
     },
     "resources": [
         {
