@@ -1,0 +1,18 @@
+{
+    "Name": "VMmaniak",
+    "IsCustom": true,
+    "Description": "Can monitor and restart virtual machines.",
+    "Actions": [
+      "Microsoft.Compute/virtualMachines/read",
+      "Microsoft.Compute/virtualMachines/start/action",
+      "Microsoft.Compute/virtualMachines/restart/action",
+      "Microsoft.Resources/subscriptions/resourceGroups/read",
+      "Microsoft.Support/supportTickets/write"
+    ],
+    "NotActions": [
+  
+    ],
+    "AssignableScopes": [
+      "/subscriptions/1d17acf4-c986-41ae-a75b-1c19746d5016"
+    ]
+  }
