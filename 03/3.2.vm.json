@@ -27,6 +27,7 @@
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "nicName": "[concat('nic-', resourceGroup().location, '-', variables('vmid'))]",
+    "nsgName": "[concat('nsg-', variables('subnetName'))]",
     "subnetName": "[concat('snet-', resourceGroup().location, '-', variables('vmid'))]",
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "[concat('pip-', resourceGroup().location, '-', variables('vmid'))]",
@@ -59,12 +60,42 @@
       }
     },
     {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('nsgName')]",
+      "location": "[variables('location')]",
+      "apiVersion": "2018-03-01",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH",
+            "properties": {
+              "description": "Allows SSH traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
       "apiVersion": "2018-04-01",
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "name": "[concat(parameters('vnetName'), '/', variables('subnetName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+      ],
       "location": "[variables('location')]",
       "properties": {
-        "addressPrefix": "[parameters('newSubnetPrefix')]"
+        "addressPrefix": "[parameters('newSubnetPrefix')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        }
       }
     },
     {
