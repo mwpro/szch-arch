@@ -1,182 +1,60 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the Virtual Machine."
-      }
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {
+        "location": "[resourceGroup().location]",
+        "addressPrefix": "10.0.0.0/16",
+        "vmId": "[uniquestring(resourceGroup().id)]",
+        "virtualNetworkName": "[concat('vnet-', resourceGroup().location, '-', variables('vmid'))]"
     },
-    "vnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "Virtual Network to be used."
-      }
-    },
-    "newSubnetPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "Subnet address prefix to be created."
-      }
-    }
-  },
-  "variables": {
-    "location": "[resourceGroup().location]",
-    "storageAccountName": "[concat('stor', variables('vmId'))]",
-    "imagePublisher": "Canonical",
-    "imageOffer": "UbuntuServer",
-    "nicName": "[concat('nic-', resourceGroup().location, '-', variables('vmid'))]",
-    "nsgName": "[concat('nsg-', variables('subnetName'))]",
-    "subnetName": "[concat('snet-', resourceGroup().location, '-', variables('vmid'))]",
-    "storageAccountType": "Standard_LRS",
-    "publicIPAddressName": "[concat('pip-', resourceGroup().location, '-', variables('vmid'))]",
-    "publicIPAddressType": "Dynamic",
-    "vmId": "[uniquestring(resourceGroup().id, deployment().name)]",
-    "vmName": "[concat('vm-', resourceGroup().location, '-', variables('vmid'))]",
-    "vmSize": "Standard_A1",
-    "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]"
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[variables('storageAccountName')]",
-      "apiVersion": "2017-06-01",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "[variables('storageAccountType')]"
-      },
-      "kind": "Storage",
-      "properties": {}
-    },
-    {
-      "apiVersion": "2017-04-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddressName')]",
-      "location": "[variables('location')]",
-      "properties": {
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]"
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "[variables('nsgName')]",
-      "location": "[variables('location')]",
-      "apiVersion": "2018-03-01",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "SSH",
+    "resources": [
+        {
+            "apiVersion": "2017-04-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('virtualNetworkName')]",
+            "location": "[variables('location')]",
             "properties": {
-              "description": "Allows SSH traffic",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "22",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('addressPrefix')]"
+                    ]
+                }
             }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2018-04-01",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "name": "[concat(parameters('vnetName'), '/', variables('subnetName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
-      ],
-      "location": "[variables('location')]",
-      "properties": {
-        "addressPrefix": "[parameters('newSubnetPrefix')]",
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-        }
-      }
-    },
-    {
-      "apiVersion": "2017-04-01",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nicName')]",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[concat('deployVmWithSubnet', copyindex())]",
+            "type": "Microsoft.Resources/deployments",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+            ],
+            "resourceGroup": "[resourceGroup().name]",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
-              },
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              }
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/mwpro/szch-arch/master/03/3.2.vm.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminPassword": {
+                        "value": "qwert**A45DC"
+                    },
+                    "vnetName": {
+                        "value": "[variables('virtualNetworkName')]"
+                    },
+                    "newSubnetPrefix": {
+                        "value": "[concat('10.0.', copyIndex(), '.0/24')]"
+                    }
+                }
+            },
+            "copy": {
+                "name": "vmCopy",
+                "count": 2,
+                "mode": "serial",
+                "batchSize": 2
             }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2017-03-30",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmName')]",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
-      ],
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[variables('vmSize')]"
-        },
-        "osProfile": {
-          "computerName": "[variables('vmName')]",
-          "adminUsername": "mwadmin",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "18.04-LTS",
-            "version": "latest"
-          },
-          "osDisk": {
-            "createOption": "FromImage",
-            "name": "[concat(variables('diskNamePrefix'), '-os')]"
-          },
-          "dataDisks": [
-            {
-              "diskSizeGB": 64,
-              "lun": 0,
-              "createOption": "Empty",
-              "name": "[concat(variables('diskNamePrefix'), '-data')]"
-            }
-          ]
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
-            }
-          ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": true,
-            "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob)]"
-          }
         }
-      }
-    }
-  ],
-  "outputs": {
-  }
+    ],
+    "outputs": {}
 }
