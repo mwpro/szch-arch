@@ -2,22 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "adminPassword": {
-      "reference": {
-        "keyVault": {
-          "id": "[variables('kvResource')]"
-        },
-        "secretName": "defaultvmadminpassword"
-      }
-    },
-    "adminUsername": {
-      "reference": {
-        "keyVault": {
-          "id": "[variables('kvResource')]"
-        },
-        "secretName": "defaultvmadminname"
-      }
-    },
     "vnetName": {
       "type": "string",
       "metadata": {
@@ -47,7 +31,24 @@
     "vmSize": "Standard_A1",
     "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]",
-    "kvResource": "[resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]"
+    "kvResource": "[resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]",
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "[variables('kvResource')]"
+        },
+        "secretName": "defaultvmadminpassword"
+      }
+    },
+    "adminUsername": {
+      "reference": {
+        "keyVault": {
+          "id": "[variables('kvResource')]"
+        },
+        "secretName": "defaultvmadminname"
+      }
+    },
+    
   },
   "resources": [
     {
@@ -164,8 +165,8 @@
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[variables('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
