@@ -13,6 +13,22 @@
       "metadata": {
         "description": "Subnet address prefix to be created."
       }
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]"
+        },
+        "secretName": "defaultvmadminpassword"
+      }
+    },
+    "adminUsername": {
+      "reference": {
+        "keyVault": {
+          "id": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]"
+        },
+        "secretName": "defaultvmadminname"
+      }
     }
   },
   "variables": {
@@ -30,24 +46,7 @@
     "vmName": "[concat('vm-', resourceGroup().location, '-', variables('vmid'))]",
     "vmSize": "Standard_A1",
     "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]",
-    "kvResource": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]",
-    "adminPassword": {
-      "reference": {
-        "keyVault": {
-          "id": "[variables('kvResource')]"
-        },
-        "secretName": "defaultvmadminpassword"
-      }
-    },
-    "adminUsername": {
-      "reference": {
-        "keyVault": {
-          "id": "[variables('kvResource')]"
-        },
-        "secretName": "defaultvmadminname"
-      }
-    }
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]"
   },
   "resources": [
     {
@@ -164,8 +163,8 @@
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
-          "adminUsername": "[variables('adminUsername')]",
-          "adminPassword": "[variables('adminPassword')]"
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
