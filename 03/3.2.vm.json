@@ -4,8 +4,26 @@
   "parameters": {
     "adminPassword": {
       "type": "securestring",
+      "reference": {
+        "keyVault": {
+          "id": "[variables('kvResource')]"
+        },
+        "secretName": "defaultvmadminpassword"
+      },
       "metadata": {
         "description": "Password for the Virtual Machine."
+      }
+    },
+    "adminUsername": {
+      "type": "securestring",
+      "reference": {
+        "keyVault": {
+          "id": "[variables('kvResource')]"
+        },
+        "secretName": "defaultvmadminname"
+      },
+      "metadata": {
+        "description": "Username for the Virtual Machine."
       }
     },
     "vnetName": {
@@ -36,7 +54,8 @@
     "vmName": "[concat('vm-', resourceGroup().location, '-', variables('vmid'))]",
     "vmSize": "Standard_A1",
     "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]"
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]",
+    "kvResource": "resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]"
   },
   "resources": [
     {
@@ -73,6 +92,20 @@
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "Application port",
+            "properties": {
+              "description": "Allows application traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "8080",
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
@@ -139,7 +172,7 @@
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
-          "adminUsername": "mwadmin",
+          "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
