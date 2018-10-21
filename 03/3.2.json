@@ -37,9 +37,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "adminPassword": {
-                        "value": "qwert**A45DC"
-                    },
                     "vnetName": {
                         "value": "[variables('virtualNetworkName')]"
                     },
