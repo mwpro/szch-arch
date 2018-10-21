@@ -15,6 +15,7 @@
       }
     },
     "adminPassword": {
+      "type": "securestring",
       "reference": {
         "keyVault": {
           "id": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]"
@@ -23,6 +24,7 @@
       }
     },
     "adminUsername": {
+      "type": "securestring",
       "reference": {
         "keyVault": {
           "id": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]"
