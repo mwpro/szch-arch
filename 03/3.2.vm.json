@@ -3,27 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
-      "type": "securestring",
       "reference": {
         "keyVault": {
           "id": "[variables('kvResource')]"
         },
         "secretName": "defaultvmadminpassword"
-      },
-      "metadata": {
-        "description": "Password for the Virtual Machine."
       }
     },
     "adminUsername": {
-      "type": "securestring",
       "reference": {
         "keyVault": {
           "id": "[variables('kvResource')]"
         },
         "secretName": "defaultvmadminname"
-      },
-      "metadata": {
-        "description": "Username for the Virtual Machine."
       }
     },
     "vnetName": {
