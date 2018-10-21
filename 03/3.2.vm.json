@@ -31,7 +31,7 @@
     "vmSize": "Standard_A1",
     "diskNamePrefix": "[concat('disk-', resourceGroup().location, '-', variables('vmId'))]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('subnetName'))]",
-    "kvResource": "[resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]",
+    "kvResource": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.KeyVault/vaults', 'kv-westeurope-szcha-03')]",
     "adminPassword": {
       "reference": {
         "keyVault": {
