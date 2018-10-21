@@ -93,7 +93,7 @@
             }
           },
           {
-            "name": "Application port",
+            "name": "ApplicationPort",
             "properties": {
               "description": "Allows application traffic",
               "protocol": "Tcp",
