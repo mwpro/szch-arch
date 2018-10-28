@@ -1,0 +1,20 @@
+az group create --name szcha04 --location westeurope
+
+az vmss create \
+  --resource-group szcha04 \
+  --name webScaleSet \
+  --image UbuntuLTS \
+  --upgrade-policy-mode automatic \
+  --admin-username azureuser \
+  --generate-ssh-keys \
+  --custom-data scaleSetInit.sh
+
+az network lb rule create \
+  --resource-group szcha04 \
+  --name webScaleSetRuleWeb \
+  --lb-name webScaleSetLB \
+  --backend-pool-name webScaleSetLBBEPool \
+  --backend-port 80 \
+  --frontend-ip-name loadBalancerFrontEnd \
+  --frontend-port 80 \
+  --protocol tcp
