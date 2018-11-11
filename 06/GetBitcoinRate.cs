@@ -18,13 +18,9 @@ namespace MWPro.FaaS
         [FunctionName("GetBitcoinRate")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req, 
-            [Table(nameof(BitcoinPriceInfo), "MyPartition")] CloudTable table,
+            [Table(nameof(BitcoinPriceInfo))] CloudTable table,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-            
-             
-
             if (!DateTime.TryParse(req.Query["date"], out var date))
                 return new BadRequestResult();
 
