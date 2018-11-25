@@ -1,35 +1,42 @@
 [{
 	"id": "43242",
     "state": "completed",
-    "total": 4314.51
+    "total": 4314.51,
+	"department": "toys"
 },
 {
 	"id": "1312",
     "state": "completed",
-    "total": 114
+    "total": 114,
+	"department": "toys"
 },
 {
 	"id": "12314",
     "state": "completed",
-    "total": 15
+    "total": 15,
+	"department": "bags"
 },
 {
 	"id": "41341",
     "state": "completed",
-    "total": 14634
+    "total": 14634,
+	"department": "toys"
 },
 {
 	"id": "41",
     "state": "completed",
-    "total": 313
+    "total": 313,
+	"department": "toys"
 },
 {
 	"id": "7567",
     "state": "new",
-    "total": 666.5
+    "total": 666.5,
+	"department": "toys"
 },
 {
 	"id": "7645",
     "state": "completed",
-    "total": 4347
+    "total": 4347,
+	"department": "food"
 }]

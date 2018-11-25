@@ -21,6 +21,10 @@ namespace FunctionForCosmos
                 var sum = completed.Sum(x => x.GetPropertyValue<decimal>("total"));
                 log.LogInformation($"{completed.Count()} orders with sum of {sum}");
             }
+            else
+            {
+                log.LogInformation("No documents in change log");
+            }
         }
     }
 }
